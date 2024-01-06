@@ -5,18 +5,20 @@ class Constraint{
         this.variables = variables;
     }
     satisfied(assignment) {
-        // assignment is a map of {variable: value}
-        // returns true if assignment is consistent with the constraint
-        for(let i = 0; i < this.variables.length; i++) {
-            for(let j = 0; j < this.variables.length; j++) {
-                // if two variables in the constraint are assigned the same value, then the assignment is invalid
-                if(assignment[this.variables[i]] === assignment[this.variables[j]]) {
-                    return false;
+        const assignedValues = new Set(); // Using a Set to store unique values
+        for (const variable of this.variables) {
+            if (assignment[variable] !== undefined) {
+                const value = assignment[variable];
+
+                // Check if the value is already assigned to another variable in the same constraint
+                if (assignedValues.has(value)) {
+                    return false; // If the value is already assigned, the constraint is violated
+                } else {
+                    assignedValues.add(value); // Add the value to the Set
                 }
             }
         }
-        // if we get here then the assignment is consistent
-        return true;
+        return true; // All values are unique within the constraint
     }
 }
 
