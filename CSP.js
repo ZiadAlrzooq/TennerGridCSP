@@ -7,7 +7,16 @@ class Constraint{
     satisfied(assignment) {
         // assignment is a map of {variable: value}
         // returns true if assignment is consistent with the constraint
-
+        for(let i = 0; i < this.variables.length; i++) {
+            for(let j = 0; j < this.variables.length; j++) {
+                // if two variables in the constraint are assigned the same value, then the assignment is invalid
+                if(assignment[this.variables[i]] === assignment[this.variables[j]]) {
+                    return false;
+                }
+            }
+        }
+        // if we get here then the assignment is consistent
+        return true;
     }
 }
 
