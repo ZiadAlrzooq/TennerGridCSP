@@ -124,7 +124,6 @@ function genAllDiffConstraint(variables, csp) {
 genColSumConstraint(variables, csp);
 // add the allDiff constraints
 genAllDiffConstraint(variables, csp);
-const result = csp.backtrackingSearch();
 function outputResult(result) {
   if (result === null) {
     console.log("No solution found!");
@@ -147,4 +146,9 @@ function outputResult(result) {
     }
   }
 }
-outputResult(result);
+
+var backtrackingBtn = document.getElementById('backtracking');
+backtrackingBtn.addEventListener('click', e => {
+  const result = csp.backtrackingSearch();
+  outputResult(result);
+});
