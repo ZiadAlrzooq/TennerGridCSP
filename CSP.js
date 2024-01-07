@@ -1,6 +1,6 @@
 // following code segments inspired from David Kopec's video about 'Constraint-Satisfaction Problems in Python'
 // https://www.youtube.com/watch?v=D1LVbE8nyXs
-class Constraint{
+export class NotEqualConstraint{
     constructor(variables) {
         this.variables = variables;
     }
@@ -22,7 +22,36 @@ class Constraint{
     }
 }
 
-class CSP {
+export class ColumnSumConstraint  {
+    constructor(variables) {
+        this.variables = variables;
+        this.targetVar = variables[variables.length-1]; // The last variable in the list is the targetSum variable(all previous variables should sum to this)
+    }
+    
+    satisfied(assignment) {
+        let targetSum = assignment[this.targetVar];
+        if(targetSum === undefined) return true; // if the target sum hasn't been defined then we're still satisfied
+        let sum = 0;
+        let count = 0;
+        for(const variable of this.variables) {
+            if(variable !== this.targetVar) {
+                sum += assignment[variable];
+                count++;
+            }
+        }
+        // if all variables have been assigned and the sum is not equal to the target sum then we're not satisfied 
+        if(count === this.variables.length-1 && sum !== targetSum) {
+            return false;
+        }
+        // or if the sum of the current assigned variables is greater than the target sum then we're not satisfied
+        if(sum > targetSum) {
+            return false;
+        }
+        // otherwise we're satisfied
+        return true;
+    }
+}
+export class CSP {
     constructor(variables, domains) {
         this.variables = variables;
         this.domains = domains;
