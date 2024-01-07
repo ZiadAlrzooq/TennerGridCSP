@@ -63,5 +63,56 @@ function genColSumConstraint(variables) {
     csp.addConstraint(new CSPModule.ColumnSumConstraint(colVariables));
   }
 }
-genColSumConstraint(variables);
+
+function genAllDiffConstraint(variables) {
+  // for each cell in the grid we need to add all the cells that are adjacent to it and in the same row to the allDiff constraint
+  for(let i = 0; i < rows; i++) {
+    for(let j = 0; j < COLUMNS; j++) {
+      const currAllDiffVariables = [];
+      // add the current cell
+      currAllDiffVariables.push(variables[i * COLUMNS + j]);
+      // the cell above
+      if(i > 0) {
+        currAllDiffVariables.push(variables[(i-1) * COLUMNS + j]); 
+      }
+      // the cell below
+      if(i < rows - 1) {
+        currAllDiffVariables.push(variables[(i+1) * COLUMNS + j]);
+      }
+      // the cell to the left
+      if(j > 0) {
+        currAllDiffVariables.push(variables[i * COLUMNS + j - 1]);
+      }
+      // the cell to the right
+      if(j < COLUMNS - 1) {
+        currAllDiffVariables.push(variables[i * COLUMNS + j + 1]);
+      }
+      // the cell top left
+      if(i > 0 && j > 0) {
+        currAllDiffVariables.push(variables[(i-1) * COLUMNS + j - 1]);
+      }
+      // the cell top right
+      if(i > 0 && j < COLUMNS - 1) {
+        currAllDiffVariables.push(variables[(i-1) * COLUMNS + j + 1]);
+      }
+      // the cell bottom left
+      if(i < rows - 1 && j > 0) {
+        currAllDiffVariables.push(variables[(i+1) * COLUMNS + j - 1]);
+      }
+      // the cell bottom right
+      if(i < rows - 1 && j < COLUMNS - 1) {
+        currAllDiffVariables.push(variables[(i+1) * COLUMNS + j + 1]);
+      }
+      // add all cells in the same row
+      for(let k = 0; k < COLUMNS; k++) {
+        if(k !== j) {
+          currAllDiffVariables.push(variables[i * COLUMNS + k]);
+        }
+      }
+      csp.addConstraint(new CSPModule.AllDifferentConstraint(currAllDiffVariables));
+    }
+  }
+}
+genAllDiffConstraint(variables);
+
 
