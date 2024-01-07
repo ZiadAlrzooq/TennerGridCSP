@@ -4,22 +4,22 @@ const rows = 3;
 // Create the grid cells
 for (let i = 0; i < rows; i++) {
   for (let j = 0; j < COLUMNS; j++) {
-    let cell = document.createElement("div");
+    const cell = document.createElement("div");
     cell.className = "cell";
     cell.innerText = "\u2003";
     cell.setAttribute("data-row", `${i}`);
     cell.setAttribute("data-col", `${j}`);
-    let grid = document.querySelector(".grid");
+    const grid = document.querySelector(".grid");
     grid.appendChild(cell);
   }
 }
 // Create the target cells
 for (let i = 0; i < COLUMNS; i++) {
-  let targetCell = document.createElement("div");
+  const targetCell = document.createElement("div");
   targetCell.className = "target-cell";
   targetCell.innerText = "\u2003";
   targetCell.setAttribute("data-col", `${i}`);
-  let grid = document.querySelector(".grid");
+  const grid = document.querySelector(".grid");
   grid.appendChild(targetCell);
 }
 
@@ -33,7 +33,7 @@ variables.push(
   )
 );
 // Adding the domains to the variables
-let domains = {};
+const domains = {};
 const gridCellsDomain = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 // The target cells have a different domain
 const minValue = Math.floor(rows / 2) * 1; // The minimum value for a target cell e.g. 0, 1, 0, 1, 0 = 2

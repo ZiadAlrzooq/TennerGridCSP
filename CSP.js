@@ -22,7 +22,7 @@ export class ColumnSumConstraint  {
     }
     
     satisfied(assignment) {
-        let targetSum = assignment[this.targetVar];
+        const targetSum = assignment[this.targetVar];
         if(targetSum === undefined) return true; // if the target sum hasn't been defined then we're still satisfied
         let sum = 0;
         let count = 0;
