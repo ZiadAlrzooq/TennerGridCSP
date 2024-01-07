@@ -1,6 +1,6 @@
 // following code segments inspired from David Kopec's video about 'Constraint-Satisfaction Problems in Python'
 // https://www.youtube.com/watch?v=D1LVbE8nyXs
-export class NotEqualConstraint{
+export class AllDifferentConstraint{
     constructor(variables) {
         this.variables = variables;
     }

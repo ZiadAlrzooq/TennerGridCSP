@@ -1,9 +1,9 @@
 import * as CSPModule from "./CSP.js";
-const columns = 10;
-const rows = 5;
+const COLUMNS = 10;
+const rows = 3;
 // Create the grid cells
 for (let i = 0; i < rows; i++) {
-  for (let j = 0; j < columns; j++) {
+  for (let j = 0; j < COLUMNS; j++) {
     let cell = document.createElement("div");
     cell.className = "cell";
     cell.innerText = "\u2003";
@@ -14,7 +14,7 @@ for (let i = 0; i < rows; i++) {
   }
 }
 // Create the target cells
-for (let i = 0; i < columns; i++) {
+for (let i = 0; i < COLUMNS; i++) {
   let targetCell = document.createElement("div");
   targetCell.className = "target-cell";
   targetCell.innerText = "\u2003";
@@ -50,4 +50,18 @@ for (const variable of variables) {
     domains[variable] = targetCellsDomain; // all possible values for a target cell
   }
 }
-console.log(domains);
+// Create the CSP
+const csp = new CSPModule.CSP(variables, domains);
+// Add the constraints to the CSP
+
+function genColSumConstraint(variables) {
+  for(let i = 0; i < COLUMNS; i++) {
+    const colVariables = [];
+    for(let j = 0; j < rows + 1; j++) {
+      colVariables.push(variables[j * COLUMNS + i]); // j * COLUMNS + i is the index of the current cell in the variables array
+    }
+    csp.addConstraint(new CSPModule.ColumnSumConstraint(colVariables));
+  }
+}
+genColSumConstraint(variables);
+
