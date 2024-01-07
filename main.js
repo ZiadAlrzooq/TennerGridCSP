@@ -1,6 +1,6 @@
 import * as CSPModule from "./CSP.js";
 const columns = 10;
-const rows = 3;
+const rows = 5;
 // Create the grid cells
 for (let i = 0; i < rows; i++) {
   for (let j = 0; j < columns; j++) {
@@ -36,22 +36,8 @@ variables.push(
 let domains = {};
 const gridCellsDomain = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 // The target cells have a different domain
-const maxSumDecreasing = (rows) => {
-  let sum = 0;
-  for (let i = 0; i < rows; i++) {
-    sum += 9 - i;
-  }
-  return sum;
-};
-const minValueIncreasing = (rows) => {
-  let sum = 0;
-  for (let i = 0; i < rows; i++) {
-    sum += i;
-  }
-  return sum;
-};
-const minValue = minValueIncreasing(rows); // The minimum value for a target cell
-const maxValue = maxSumDecreasing(rows); // The maximum value for a target cell
+const minValue = Math.floor(rows / 2) * 1; // The minimum value for a target cell e.g. 0, 1, 0, 1, 0 = 2
+const maxValue = Math.ceil(rows / 2) * 9 + Math.floor(rows / 2) * 8; // The maximum value for a target cell e.g. 9, 8, 9, 8, 9 = 43
 // a range of possible values for a target cell starting from the minimum value and ending at the maximum value
 const targetCellsDomain = Array.from(
   { length: maxValue - minValue + 1 },
