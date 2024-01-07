@@ -5,17 +5,10 @@ export class AllDifferentConstraint{
         this.variables = variables;
     }
     satisfied(assignment) {
-        const assignedValues = new Set(); // Using a Set to store unique values
+        const currNotEqVariable = this.variables[0];
         for (const variable of this.variables) {
-            if (assignment[variable] !== undefined) {
-                const value = assignment[variable];
-
-                // Check if the value is already assigned to another variable in the same constraint
-                if (assignedValues.has(value)) {
-                    return false; // If the value is already assigned, the constraint is violated
-                } else {
-                    assignedValues.add(value); // Add the value to the Set
-                }
+            if (variable !== currNotEqVariable && assignment[variable] !== undefined && assignment[currNotEqVariable] === assignment[variable]) {
+                return false; // If a value is repeated then we have failed
             }
         }
         return true; // All values are unique within the constraint
@@ -34,7 +27,7 @@ export class ColumnSumConstraint  {
         let sum = 0;
         let count = 0;
         for(const variable of this.variables) {
-            if(variable !== this.targetVar) {
+            if(variable !== this.targetVar && assignment[variable] !== undefined) {
                 sum += assignment[variable];
                 count++;
             }
@@ -82,7 +75,6 @@ export class CSP {
         }
         return true;
     }
-
     backtrackingSearch(assignment = {}) {
         // assignment is a map of {variable: value}
         // returns map of {variable: value}

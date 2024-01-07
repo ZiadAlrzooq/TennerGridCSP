@@ -54,7 +54,7 @@ for (const variable of variables) {
 const csp = new CSPModule.CSP(variables, domains);
 // Add the constraints to the CSP
 
-function genColSumConstraint(variables) {
+function genColSumConstraint(variables, csp) {
   for(let i = 0; i < COLUMNS; i++) {
     const colVariables = [];
     for(let j = 0; j < rows + 1; j++) {
@@ -64,7 +64,7 @@ function genColSumConstraint(variables) {
   }
 }
 
-function genAllDiffConstraint(variables) {
+function genAllDiffConstraint(variables, csp) {
   // for each cell in the grid we need to add all the cells that are adjacent to it and in the same row to the allDiff constraint
   for(let i = 0; i < rows; i++) {
     for(let j = 0; j < COLUMNS; j++) {
@@ -113,6 +113,27 @@ function genAllDiffConstraint(variables) {
     }
   }
 }
-genAllDiffConstraint(variables);
-
-
+// add the column sum constraints
+genColSumConstraint(variables, csp);
+// add the allDiff constraints
+genAllDiffConstraint(variables, csp);
+const result = csp.backtrackingSearch();
+function outputResult(result) {
+  if(result === null) {
+    console.log('No solution found!');
+  } else {
+    console.log(result);
+    for(const variable in result) {
+      if(variable.startsWith('t')) {
+        const col = variable[1];
+        const targetCell = document.querySelector(`.target-cell[data-col="${col}"]`);
+        targetCell.innerText = result[variable];
+      } else {
+        const [row, col] = variable.split(',');
+        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        cell.innerText = result[variable];
+      }
+    }
+  }
+}
+outputResult(result);
