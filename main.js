@@ -147,8 +147,13 @@ function outputResult(result) {
   }
 }
 
-var backtrackingBtn = document.getElementById('backtracking');
+const backtrackingBtn = document.getElementById('backtracking');
 backtrackingBtn.addEventListener('click', e => {
   const result = csp.backtrackingSearch();
   outputResult(result);
+});
+
+const resetBtn = document.getElementById('reset');
+resetBtn.addEventListener('click', e => {
+  window.location.reload();
 });
