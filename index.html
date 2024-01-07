@@ -13,47 +13,25 @@
     <main>
       <p>
         Welcome to the Tenner Grid puzzle! This mathematical challenge requires
-        filling a rectangular grid where each row should have distinct numbers
-        from 0 to 9. The numbers in each cell must differ from those in the same
-        row and neighboring cells. This project aims to solve the puzzle using
-        different CSP algorithms such as Back Tracking, Back Tracking With MRV,
-        Forward Checking, and Forward Checking With MRV.
+        filling a rectangular grid with numbers from 0 to 9. The numbers in each
+        cell must differ from those in the same row and the connected cells to it, Also
+        the numbers in the same column must add up to the number in last cell in the same
+        column. This project aims to solve the puzzle using different CSP
+        algorithms such as Back Tracking, Back Tracking With MRV, Forward
+        Checking, and Forward Checking With MRV.
       </p>
       <div class="grid"></div>
       <div class="button-row">
-        <button
-          class="btn"
-          id="reset"
-          aria-label="Reset the grid with a random initial state"
-        >
-          Reset
-        </button>
-        <button
-          class="btn"
-          id="backtracking"
-          aria-label="Solve using Back Tracking"
-        >
-          Back Tracking
-        </button>
-        <button
-          class="btn"
-          id="backtracking-mrv"
-          aria-label="Solve using Back Tracking With MRV"
-        >
+        <button class="btn" id="reset">Reset</button>
+        <button class="btn" id="randomize">Randomize</button>
+      </div>
+      <div class="button-row">
+        <button class="btn" id="backtracking">Back Tracking</button>
+        <button class="btn" id="backtracking-mrv">
           Back Tracking With MRV
         </button>
-        <button
-          class="btn"
-          id="forwardchecking"
-          aria-label="Solve using Forward Checking"
-        >
-          Forward Checking
-        </button>
-        <button
-          class="btn"
-          id="forwardchecking-mrv"
-          aria-label="Solve using Forward Checking With MRV"
-        >
+        <button class="btn" id="forwardchecking">Forward Checking</button>
+        <button class="btn" id="forwardchecking-mrv">
           Forward Checking With MRV
         </button>
       </div>

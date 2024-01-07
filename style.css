@@ -37,7 +37,11 @@ header {
 }
 
 .button-row {
+    margin-right: auto;
+    margin-left: auto;
     margin-top: 50px;
+    width: 60%;
+    min-width: 768px;
     display: flex;
     justify-content: space-around;
 }
