@@ -56,7 +56,7 @@ export class CSP {
         this.variables = variables;
         this.domains = domains;
         this.constraints = {};
-        for(const variable in variables) {
+        for(const variable of variables) {
             this.constraints[variable] = [];
             if(!(variable in domains)) {
                 throw new Error('Every variable should have a domain assigned to it.');
@@ -64,7 +64,7 @@ export class CSP {
         }
     }
     addConstraint(constraint) {
-        for(const variable in constraint.variables) {
+        for(const variable of constraint.variables) {
             if(!this.variables.includes(variable)) {
                 throw new Error('Variable in constraint but not in CSP');
             } else {
