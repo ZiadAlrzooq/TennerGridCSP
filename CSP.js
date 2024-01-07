@@ -49,6 +49,7 @@ export class CSP {
         this.variables = variables;
         this.domains = domains;
         this.constraints = {};
+        this.consistencyChecks = 0;
         for(const variable of variables) {
             this.constraints[variable] = [];
             if(!(variable in domains)) {
@@ -68,6 +69,7 @@ export class CSP {
     consistent(variable, assignment) {
         // assignment is a map of {variable: value}
         // returns true if assignment is consistent by checking all constraints
+        this.consistencyChecks++;
         for(const constraint of this.constraints[variable]) {
             if(!constraint.satisfied(assignment)) {
                 return false;
@@ -98,6 +100,10 @@ export class CSP {
             }
         }
         return null;
+    }
+
+    resetConsistencyChecks() {
+        this.consistencyChecks = 0;
     }
     
 }

@@ -124,11 +124,15 @@ function genAllDiffConstraint(variables, csp) {
 genColSumConstraint(variables, csp);
 // add the allDiff constraints
 genAllDiffConstraint(variables, csp);
-function outputResult(result) {
+function outputResult(result, consistencyChecks, time) {
   if (result === null) {
     console.log("No solution found!");
   } else {
     console.log(result);
+    const consistencyChecksEl = document.getElementById('consistency-checks');
+    const timeEl = document.getElementById('time-taken');
+    consistencyChecksEl.innerText = 'Consistency checks: ' + consistencyChecks;
+    timeEl.innerText = 'Time taken: ' + time.toFixed(2) + 'ms';
     for (const variable in result) {
       if (variable.startsWith("t")) {
         const col = variable[1];
@@ -149,8 +153,11 @@ function outputResult(result) {
 
 const backtrackingBtn = document.getElementById('backtracking');
 backtrackingBtn.addEventListener('click', e => {
+  csp.resetConsistencyChecks();
+  const startTime = performance.now();
   const result = csp.backtrackingSearch();
-  outputResult(result);
+  const endTime = performance.now();
+  outputResult(result, csp.consistencyChecks, endTime - startTime);
 });
 
 const resetBtn = document.getElementById('reset');
