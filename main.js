@@ -53,7 +53,18 @@ function createCSPVariablesAndDomains() {
     (_, i) => minValue + i
   );
   for (const variable of variables) {
-    if (!variable.startsWith("t")) {
+    let cell; // get the corresponding cell for the variable
+    if (variable.startsWith("t")) {
+      cell = document.querySelector(`.target-cell[data-col="${variable.charAt(1)}"]`);
+    }
+    else {
+      cell = document.querySelector(`.cell[data-row="${variable.charAt(0)}"][data-col="${variable.charAt(2)}"], .target`) 
+    }
+    if (cell.innerText !== "\u2003") { // if the cell has a predefined value then we restrict the domain to that value
+      domains[variable] = [parseInt(cell.innerText)];
+    } 
+    // otherwise we use default domains
+    else if (!variable.startsWith("t")) { 
       domains[variable] = gridCellsDomain; // all possible values for a grid cell
     } else {
       domains[variable] = targetCellsDomain; // all possible values for a target cell
@@ -128,10 +139,10 @@ function outputResult(result, consistencyChecks, time) {
     console.log("No solution found!");
   } else {
     console.log(result);
-    const consistencyChecksEl = document.getElementById('consistency-checks');
-    const timeEl = document.getElementById('time-taken');
-    consistencyChecksEl.innerText = 'Consistency checks: ' + consistencyChecks;
-    timeEl.innerText = 'Time taken: ' + time.toFixed(2) + 'ms';
+    const consistencyChecksEl = document.getElementById("consistency-checks");
+    const timeEl = document.getElementById("time-taken");
+    consistencyChecksEl.innerText = "Consistency checks: " + consistencyChecks;
+    timeEl.innerText = "Time taken: " + time.toFixed(2) + "ms";
     for (const variable in result) {
       if (variable.startsWith("t")) {
         const col = variable[1];
@@ -158,8 +169,8 @@ function createCSP() {
   return csp;
 }
 
-const backtrackingBtn = document.getElementById('backtracking');
-backtrackingBtn.addEventListener('click', e => {
+const backtrackingBtn = document.getElementById("backtracking");
+backtrackingBtn.addEventListener("click", (e) => {
   const csp = createCSP();
   const startTime = performance.now();
   const result = csp.backtrackingSearch();
@@ -167,16 +178,16 @@ backtrackingBtn.addEventListener('click', e => {
   outputResult(result, csp.consistencyChecks, endTime - startTime);
 });
 
-const resetBtn = document.getElementById('reset');
-resetBtn.addEventListener('click', e => {
+const resetBtn = document.getElementById("reset");
+resetBtn.addEventListener("click", (e) => {
   window.location.reload();
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   const slider = document.getElementById("row-size-slider");
-  slider.addEventListener("input", function() {
+  slider.addEventListener("input", function () {
     rows = parseInt(this.value);
-    slider.nextElementSibling.innerText = 'Row Size: ' + rows;
+    slider.nextElementSibling.innerText = "Row Size: " + rows;
     clearGrid();
     createCells(rows, COLUMNS);
   });
