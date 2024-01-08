@@ -55,10 +55,7 @@ function createCSPVariablesAndDomains() {
   }
   return [variables, domains];
 }
-// Create the CSP
-const [variables, domains] = createCSPVariablesAndDomains();
-const csp = new CSPModule.CSP(variables, domains);
-// Add the constraints to the CSP
+
 function genColSumConstraint(variables, csp) {
   for (let i = 0; i < COLUMNS; i++) {
     const colVariables = [];
@@ -120,10 +117,6 @@ function genAllDiffConstraint(variables, csp) {
     }
   }
 }
-// add the column sum constraints
-genColSumConstraint(variables, csp);
-// add the allDiff constraints
-genAllDiffConstraint(variables, csp);
 function outputResult(result, consistencyChecks, time) {
   if (result === null) {
     console.log("No solution found!");
@@ -151,8 +144,17 @@ function outputResult(result, consistencyChecks, time) {
   }
 }
 
+function createCSP() {
+  const [variables, domains] = createCSPVariablesAndDomains();
+  const csp = new CSPModule.CSP(variables, domains);
+  genColSumConstraint(variables, csp);
+  genAllDiffConstraint(variables, csp);
+  return csp;
+}
+
 const backtrackingBtn = document.getElementById('backtracking');
 backtrackingBtn.addEventListener('click', e => {
+  const csp = createCSP();
   csp.resetConsistencyChecks();
   const startTime = performance.now();
   const result = csp.backtrackingSearch();
