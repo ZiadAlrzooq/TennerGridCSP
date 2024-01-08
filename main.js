@@ -175,8 +175,8 @@ resetBtn.addEventListener('click', e => {
 document.addEventListener("DOMContentLoaded", function() {
   const slider = document.getElementById("row-size-slider");
   slider.addEventListener("input", function() {
-    slider.nextElementSibling.innerText = 'Row Size: ' + this.value;
-    rows = this.value;
+    rows = parseInt(this.value);
+    slider.nextElementSibling.innerText = 'Row Size: ' + rows;
     clearGrid();
     createCells(rows, COLUMNS);
   });
