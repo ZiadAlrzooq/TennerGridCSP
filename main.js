@@ -1,6 +1,6 @@
 import * as CSPModule from "./CSP.js";
 const COLUMNS = 10;
-const rows = 3;
+let rows = 3;
 // Create the grid cells
 function createCells(rows, columns) {
   for (let i = 0; i < rows; i++) {
@@ -22,6 +22,12 @@ function createCells(rows, columns) {
     targetCell.setAttribute("data-col", `${i}`);
     const grid = document.querySelector(".grid");
     grid.appendChild(targetCell);
+  }
+}
+function clearGrid() {
+  const grid = document.querySelector(".grid");
+  while (grid.firstChild) {
+    grid.removeChild(grid.firstChild);
   }
 }
 createCells(rows, COLUMNS);
@@ -155,7 +161,6 @@ function createCSP() {
 const backtrackingBtn = document.getElementById('backtracking');
 backtrackingBtn.addEventListener('click', e => {
   const csp = createCSP();
-  csp.resetConsistencyChecks();
   const startTime = performance.now();
   const result = csp.backtrackingSearch();
   const endTime = performance.now();
@@ -165,4 +170,14 @@ backtrackingBtn.addEventListener('click', e => {
 const resetBtn = document.getElementById('reset');
 resetBtn.addEventListener('click', e => {
   window.location.reload();
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const slider = document.getElementById("row-size-slider");
+  slider.addEventListener("input", function() {
+    slider.nextElementSibling.innerText = 'Row Size: ' + this.value;
+    rows = this.value;
+    clearGrid();
+    createCells(rows, COLUMNS);
+  });
 });

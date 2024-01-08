@@ -101,9 +101,5 @@ export class CSP {
         }
         return null;
     }
-
-    resetConsistencyChecks() {
-        this.consistencyChecks = 0;
-    }
     
 }
