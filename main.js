@@ -31,7 +31,7 @@ function clearGrid() {
   }
 }
 createCells(rows, COLUMNS);
-function createCSPVariablesAndDomains() {
+function createVariables() {
   // The variables in our CSP will be the grid cells and the target cells which we can get using the following code
   const variables = Array.from(document.querySelectorAll(".cell")).map(
     (cell) => cell.dataset.row + "," + cell.dataset.col
@@ -41,8 +41,10 @@ function createCSPVariablesAndDomains() {
       (cell) => "t" + cell.dataset.col
     )
   );
-  // Adding the domains to the variables
-  const domains = {};
+  return variables;
+}
+function createDomains() {
+  // The domains in our CSP will be the possible values for each grid cell and target cell
   const gridCellsDomain = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   // The target cells have a different domain
   const minValue = Math.floor(rows / 2) * 1; // The minimum value for a target cell e.g. 0, 1, 0, 1, 0 = 2
@@ -52,19 +54,32 @@ function createCSPVariablesAndDomains() {
     { length: maxValue - minValue + 1 },
     (_, i) => minValue + i
   );
+  return [gridCellsDomain, targetCellsDomain];
+}
+function createCSPVariablesAndDomains() {
+  const variables = createVariables();
+  // Adding the domains to the variables
+  const [gridCellsDomain, targetCellsDomain] = createDomains();
+  const domains = {}; // a map of {variable: domain}
   for (const variable of variables) {
     let cell; // get the corresponding cell for the variable
     if (variable.startsWith("t")) {
-      cell = document.querySelector(`.target-cell[data-col="${variable.charAt(1)}"]`);
+      cell = document.querySelector(
+        `.target-cell[data-col="${variable.charAt(1)}"]`
+      );
+    } else {
+      cell = document.querySelector(
+        `.cell[data-row="${variable.charAt(0)}"][data-col="${variable.charAt(
+          2
+        )}"], .target`
+      );
     }
-    else {
-      cell = document.querySelector(`.cell[data-row="${variable.charAt(0)}"][data-col="${variable.charAt(2)}"], .target`) 
-    }
-    if (cell.innerText !== "\u2003") { // if the cell has a predefined value then we restrict the domain to that value
+    if (cell.innerText !== "\u2003") {
+      // if the cell has a predefined value then we restrict the domain to that value
       domains[variable] = [parseInt(cell.innerText)];
-    } 
+    }
     // otherwise we use default domains
-    else if (!variable.startsWith("t")) { 
+    else if (!variable.startsWith("t")) {
       domains[variable] = gridCellsDomain; // all possible values for a grid cell
     } else {
       domains[variable] = targetCellsDomain; // all possible values for a target cell
@@ -134,29 +149,29 @@ function genAllDiffConstraint(variables, csp) {
     }
   }
 }
-function outputResult(result, consistencyChecks, time) {
+function outputResult(result, consistencyChecks = undefined, time = undefined) {
   if (result === null) {
     console.log("No solution found!");
-  } else {
-    console.log(result);
+  }
+  if ((consistencyChecks !== undefined) & (time !== undefined)) {
     const consistencyChecksEl = document.getElementById("consistency-checks");
     const timeEl = document.getElementById("time-taken");
     consistencyChecksEl.innerText = "Consistency checks: " + consistencyChecks;
     timeEl.innerText = "Time taken: " + time.toFixed(2) + "ms";
-    for (const variable in result) {
-      if (variable.startsWith("t")) {
-        const col = variable[1];
-        const targetCell = document.querySelector(
-          `.target-cell[data-col="${col}"]`
-        );
-        targetCell.innerText = result[variable];
-      } else {
-        const [row, col] = variable.split(",");
-        const cell = document.querySelector(
-          `.cell[data-row="${row}"][data-col="${col}"]`
-        );
-        cell.innerText = result[variable];
-      }
+  }
+  for (const variable in result) {
+    if (variable.startsWith("t")) {
+      const col = variable[1];
+      const targetCell = document.querySelector(
+        `.target-cell[data-col="${col}"]`
+      );
+      targetCell.innerText = result[variable];
+    } else {
+      const [row, col] = variable.split(",");
+      const cell = document.querySelector(
+        `.cell[data-row="${row}"][data-col="${col}"]`
+      );
+      cell.innerText = result[variable];
     }
   }
 }
