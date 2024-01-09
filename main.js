@@ -207,3 +207,50 @@ document.addEventListener("DOMContentLoaded", function () {
     createCells(rows, COLUMNS);
   });
 });
+const randomize = document.getElementById("randomize");
+randomize.addEventListener("click", randomInitialState);
+
+function randomInitialState() {
+  clearGrid();
+  createCells(rows, COLUMNS);
+  const [gridCellsDomain, targetCellsDomain] = createDomains();
+  const csp = createCSP();
+  const assignment = {};
+  // assign random values to the grid variables with a 50% chance of assigning a value to a variable
+  for (const gridVariable of csp.variables.filter(
+    (variable) => !variable.startsWith("t")
+  )) {
+    if (Math.random() < 0.5) {
+      const shuffledDomain = gridCellsDomain.sort(() => 0.5 - Math.random());
+      for (const value of shuffledDomain) {
+        if (csp.consistent(gridVariable, {...assignment ,[gridVariable]: value })) { 
+          assignment[gridVariable] = value;
+          break;
+        }
+      }
+    }
+  }
+    // restrict the domains of the grid variables to the values in the assignment otherwise use default domains for the grid variables and target variables
+    for (const variable of csp.variables) {
+      if (variable in assignment) {
+        csp.domains[variable] = [assignment[variable]];
+      } else if(variable.startsWith("t")) {
+        csp.domains[variable] = targetCellsDomain;
+      }
+      else {
+        csp.domains[variable] = gridCellsDomain;
+      }
+    }
+    const result = csp.backtrackingSearch(assignment);
+    if (result === null) {
+      console.log("No solution found! retrying...");
+      randomInitialState();
+    }
+    // add the target cells from result to the assignment
+    for (const variable in result) {
+      if (variable.startsWith("t")) {
+        assignment[variable] = result[variable];
+      }
+    }
+    outputResult(assignment);
+}
