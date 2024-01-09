@@ -101,5 +101,40 @@ export class CSP {
         }
         return null;
     }
+
+    backtrackingSearchWithMRV(assignment = {}) {
+        // assignment is a map of {variable: value}
+        // returns map of {variable: value}
+        if(Object.keys(assignment).length === this.variables.length) {
+            // assignment is complete
+            return assignment;
+        }
+        // use mrv to get the unassigned variable with the least remaining values
+        const unassigned = this.mrv(assignment);
+        for(const value of this.domains[unassigned]) {
+            const localAssignment = {...assignment};
+            localAssignment[unassigned] = value;
+            // if we're still consistent, we recurse (continue)
+            if(this.consistent(unassigned, localAssignment)) {
+                const result = this.backtrackingSearchWithMRV(localAssignment);
+                if(result !== null) {
+                    return result;
+                }
+            }
+        }
+        return null;
+    }
+
+    mrv(assignment) {
+        // returns the unassigned variable with the least remaining values
+        const unassigned = this.variables.filter(v => !(v in assignment));
+        return unassigned.reduce((a, b) => {
+            if(this.domains[a].length < this.domains[b].length) {
+                return a;
+            } else {
+                return b;
+            }
+        });
+    }
     
 }

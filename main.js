@@ -193,6 +193,15 @@ backtrackingBtn.addEventListener("click", (e) => {
   outputResult(result, csp.consistencyChecks, endTime - startTime);
 });
 
+const backtrackingMRVBtn = document.getElementById("backtracking-mrv");
+backtrackingMRVBtn.addEventListener("click", (e) => {
+  const csp = createCSP();
+  const startTime = performance.now();
+  const result = csp.backtrackingSearchWithMRV();
+  const endTime = performance.now();
+  outputResult(result, csp.consistencyChecks, endTime - startTime);
+});
+
 const resetBtn = document.getElementById("reset");
 resetBtn.addEventListener("click", (e) => {
   window.location.reload();
