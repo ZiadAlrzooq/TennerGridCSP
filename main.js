@@ -113,14 +113,6 @@ function genAllDiffConstraint(variables, csp) {
       if (i < rows - 1) {
         currAllDiffVariables.push(variables[(i + 1) * COLUMNS + j]);
       }
-      // the cell to the left
-      if (j > 0) {
-        currAllDiffVariables.push(variables[i * COLUMNS + j - 1]);
-      }
-      // the cell to the right
-      if (j < COLUMNS - 1) {
-        currAllDiffVariables.push(variables[i * COLUMNS + j + 1]);
-      }
       // the cell top left
       if (i > 0 && j > 0) {
         currAllDiffVariables.push(variables[(i - 1) * COLUMNS + j - 1]);
@@ -198,6 +190,24 @@ backtrackingMRVBtn.addEventListener("click", (e) => {
   const csp = createCSP();
   const startTime = performance.now();
   const result = csp.backtrackingSearchWithMRV();
+  const endTime = performance.now();
+  outputResult(result, csp.consistencyChecks, endTime - startTime);
+});
+
+const forwardCheckingBtn = document.getElementById("forwardchecking");
+forwardCheckingBtn.addEventListener("click", (e) => {
+  const csp = createCSP();
+  const startTime = performance.now();
+  const result = csp.forwardChecking();
+  const endTime = performance.now();
+  outputResult(result, csp.consistencyChecks, endTime - startTime);
+});
+
+const forwardCheckingMRVBtn = document.getElementById("forwardchecking-mrv");
+forwardCheckingMRVBtn.addEventListener("click", (e) => {
+  const csp = createCSP();
+  const startTime = performance.now();
+  const result = csp.forwardCheckingWithMRV();
   const endTime = performance.now();
   outputResult(result, csp.consistencyChecks, endTime - startTime);
 });

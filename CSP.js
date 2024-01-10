@@ -125,6 +125,117 @@ export class CSP {
         return null;
     }
 
+    forwardChecking(assignment = {}, domains = this.domains) {
+        if(Object.keys(assignment).length === this.variables.length) {
+            // assignment is complete
+            return assignment;
+        }
+        // get all variables in CSP but not in assignment
+        const unassigned = this.variables.filter(v => !(v in assignment));
+        const first = unassigned[0];
+        for(const value of domains[first]) {
+            const localAssignment = {...assignment};
+            localAssignment[first] = value;
+            // if we're still consistent, we recurse (continue)
+            if(this.consistent(first, localAssignment)) {
+                const localDomain = {...domains};
+                for(const constraint of this.constraints[first]) {
+                    if(constraint instanceof AllDifferentConstraint && constraint.variables[0] === first) {
+                        for(const variable of constraint.variables) {
+                            if(!(variable in localAssignment)) {
+                                localDomain[variable] = localDomain[variable].filter(v => v !== value);
+                            }
+                        }
+                        break;
+                    }
+                    else if(constraint instanceof ColumnSumConstraint) {
+                        for(const variable of constraint.variables) {
+                            if(!(variable in localAssignment)) {
+                                for(const val of localDomain[variable]) {
+                                    if(val + value > localAssignment[constraint.targetVar]) {
+                                        localDomain[variable] = localDomain[variable].filter(v => v !== val);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                // check if any of the domains are empty
+                let emptyDomain = false;
+                for(const variable of unassigned) {
+                    if(localDomain[variable].length === 0) {
+                        emptyDomain = true;
+                        break;
+                    }
+                }
+                if(!emptyDomain) {
+                    const result = this.forwardChecking(localAssignment, localDomain);
+                    if(result !== null) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    forwardCheckingWithMRV(assignment = {}, domains = this.domains) {
+        if(Object.keys(assignment).length === this.variables.length) {
+            // assignment is complete
+            return assignment;
+        }
+        // get all variables in CSP but not in assignment
+        const unassigned = this.variables.filter(v => !(v in assignment));
+        const first = this.mrv(assignment);
+        for(const value of domains[first]) {
+            const localAssignment = {...assignment};
+            localAssignment[first] = value;
+            // if we're still consistent, we recurse (continue)
+            if(this.consistent(first, localAssignment)) {
+                const localDomain = {...domains};
+                for(const constraint of this.constraints[first]) {
+                    if(constraint instanceof AllDifferentConstraint && constraint.variables[0] === first) {
+                        for(const variable of constraint.variables) {
+                            if(!(variable in localAssignment)) {
+                                localDomain[variable] = localDomain[variable].filter(v => v !== value);
+                            }
+                        }
+                        break;
+                    }
+                    else if(constraint instanceof ColumnSumConstraint) {
+                        for(const variable of constraint.variables) {
+                            if(!(variable in localAssignment)) {
+                                for(const val of localDomain[variable]) {
+                                    if(val + value > localAssignment[constraint.targetVar]) {
+                                        localDomain[variable] = localDomain[variable].filter(v => v !== val);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                // check if any of the domains are empty
+                let emptyDomain = false;
+                for(const variable of unassigned) {
+                    if(localDomain[variable].length === 0) {
+                        emptyDomain = true;
+                        break;
+                    }
+                }
+                if(!emptyDomain) {
+                    const result = this.forwardCheckingWithMRV(localAssignment, localDomain);
+                    if(result !== null) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     mrv(assignment) {
         // returns the unassigned variable with the least remaining values
         const unassigned = this.variables.filter(v => !(v in assignment));
