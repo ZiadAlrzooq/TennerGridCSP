@@ -258,6 +258,32 @@ function createCSP() {
   return csp;
 }
 
+// Add event listener to the grid to prevent the user from entering invalid values
+const grid = document.querySelector(".grid");
+grid.addEventListener('input', (event) => {
+  const cell = event.target;
+  const inputValue = cell.textContent.trim();
+  let digit = parseInt(inputValue);
+
+  if (!isNaN(digit)) {
+      // Update the content if it's a valid digit
+      if(digit > 9) {
+        digit = digit % 10;
+      }
+      cell.textContent = digit;
+      // the following code is used to move the cursor to the end of the cell after the user enters a value
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(cell);
+      range.collapse(false); // Collapse the range to the end
+      selection.removeAllRanges();
+      selection.addRange(range);
+  } else {
+      // Clear the content if it's not a valid digit
+      cell.textContent = '';
+  }
+});
+
 const backtrackingBtn = document.getElementById("backtracking");
 backtrackingBtn.addEventListener("click", (e) => {
   const csp = createCSP();
