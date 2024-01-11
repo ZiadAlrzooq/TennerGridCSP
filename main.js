@@ -1,6 +1,7 @@
 import * as CSPModule from "./CSP.js";
 const COLUMNS = 10;
 let rows = 3;
+let savedState = null; // used to save the state of the grid when the user clicks the reset button
 
 /**
  * Creates grid cells and target cells in the DOM.
@@ -183,12 +184,14 @@ function updateUIWithCSPResult(result, consistencyChecks, time) {
     console.log("No solution found!");
     return;
   }
-
+  //clear and reset the grid
+  clearGrid();
+  createCells(rows, COLUMNS);
+  // update the consistency checks and time elements if they are provided
   updateConsistencyAndTime(consistencyChecks, time);
-
+  // update the grid and target cells with the values from the result
   for (const variable in result) {
     const value = result[variable];
-
     if (variable.startsWith("t")) {
       updateTargetCell(variable, value);
     } else {
@@ -293,7 +296,12 @@ forwardCheckingMRVBtn.addEventListener("click", (e) => {
 
 const resetBtn = document.getElementById("reset");
 resetBtn.addEventListener("click", (e) => {
-  window.location.reload();
+  if (savedState === null) {
+    console.log("No saved state!");
+    return;
+  }
+  console.log("Resetting to saved state...");
+  updateUIWithCSPResult(savedState);
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -357,5 +365,6 @@ function randomInitialState() {
         assignment[variable] = result[variable];
       }
     }
+    savedState = assignment;
     updateUIWithCSPResult(assignment);
 }
