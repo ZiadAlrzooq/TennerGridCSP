@@ -4,14 +4,20 @@ export class AllDifferentConstraint{
     constructor(variables) {
         this.variables = variables;
     }
+    /**
+     * Check if the given assignment satisfies the all-different constraint.
+     *
+     * @param {object} assignment - The assignment of variables and their values.
+     * @returns {boolean} - True if all values are unique within the constraint, false otherwise.
+     */
     satisfied(assignment) {
         const currNotEqVariable = this.variables[0];
         for (const variable of this.variables) {
             if (variable !== currNotEqVariable && assignment[variable] !== undefined && assignment[currNotEqVariable] === assignment[variable]) {
-                return false; // If a value is repeated then we have failed
+                return false; // If a value is repeated then the constraint is not satisfied
             }
         }
-        return true; // All values are unique within the constraint
+        return true; // All values are unique within the constraint; constraint is satisfied
     }
 }
 
@@ -21,9 +27,15 @@ export class ColumnSumConstraint  {
         this.targetVar = variables[variables.length-1]; // The last variable in the list is the targetSum variable(all previous variables should sum to this)
     }
     
+    /**
+     * Check if the given assignment satisfies the column sum constraint.
+     *
+     * @param {object} assignment - The assignment of variables and their values.
+     * @returns {boolean} - True if the assignment satisfies the constraint, false otherwise.
+     */
     satisfied(assignment) {
         const targetSum = assignment[this.targetVar];
-        if(targetSum === undefined) return true; // if the target sum hasn't been defined then we're still satisfied
+        if(targetSum === undefined) return true; // if the target sum hasn't been defined yet then the constraint is satisfied
         let sum = 0;
         let count = 0;
         for(const variable of this.variables) {
@@ -32,19 +44,25 @@ export class ColumnSumConstraint  {
                 count++;
             }
         }
-        // if all variables have been assigned and the sum is not equal to the target sum then we're not satisfied 
+        // if all variables have been assigned and the sum is not equal to the target sum then the constraint is not satisfied
         if(count === this.variables.length-1 && sum !== targetSum) {
             return false;
         }
-        // or if the sum of the current assigned variables is greater than the target sum then we're not satisfied
+        // or if the sum of the current assigned variables is greater than the target sum then the constraint is not satisfied
         if(sum > targetSum) {
             return false;
         }
-        // otherwise we're satisfied
+        // otherwise the constraint is satisfied
         return true;
     }
 }
 export class CSP {
+    /**
+     * Creates a new Constraint Satisfaction Problem (CSP).
+     *
+     * @param {array} variables - An array of variables for the CSP.
+     * @param {object} domains - An object where the keys are variables and the values are arrays of possible values for those variables.
+     */
     constructor(variables, domains) {
         this.variables = variables;
         this.domains = domains;
@@ -57,6 +75,12 @@ export class CSP {
             }
         }
     }
+    /**
+     * Adds a constraint to the CSP.
+     *
+     * @param {object} constraint - The constraint to be added.
+     * @throws {Error} - If a variable in the constraint is not present in the CSP.
+     */
     addConstraint(constraint) {
         for(const variable of constraint.variables) {
             if(!this.variables.includes(variable)) {
@@ -66,9 +90,14 @@ export class CSP {
             }
         }
     }
+    /**
+    * Checks if an assignment is consistent by checking all constraints.
+    *
+    * @param {string} variable - The variable to check consistency for.
+    * @param {object} assignment - The assignment of variables and their values.
+    * @returns {boolean} - True if the assignment is consistent, false otherwise.
+    */
     consistent(variable, assignment) {
-        // assignment is a map of {variable: value}
-        // returns true if assignment is consistent by checking all constraints
         this.consistencyChecks++;
         for(const constraint of this.constraints[variable]) {
             if(!constraint.satisfied(assignment)) {
@@ -77,9 +106,13 @@ export class CSP {
         }
         return true;
     }
+    /**
+     * Performs a backtracking search to find a solution to the Constraint Satisfaction Problem (CSP).
+     *
+     * @param {object} assignment - The current assignment of variables and their values.
+     * @returns {object|null} - The complete assignment if a solution is found, or null if no solution exists.
+     */
     backtrackingSearch(assignment = {}) {
-        // assignment is a map of {variable: value}
-        // returns map of {variable: value}
         if(Object.keys(assignment).length === this.variables.length) {
             // assignment is complete
             return assignment;
@@ -101,10 +134,13 @@ export class CSP {
         }
         return null;
     }
-
+    /**
+     * Performs a backtracking search to find a solution to the Constraint Satisfaction Problem (CSP) using the Minimum Remaining Values (MRV) heuristic.
+     *
+     * @param {object} assignment - The current assignment of variables and their values.
+     * @returns {object|null} - The complete assignment if a solution is found, or null if no solution exists.
+     */
     backtrackingSearchWithMRV(assignment = {}) {
-        // assignment is a map of {variable: value}
-        // returns map of {variable: value}
         if(Object.keys(assignment).length === this.variables.length) {
             // assignment is complete
             return assignment;
@@ -125,7 +161,13 @@ export class CSP {
         }
         return null;
     }
-
+    /**
+     * Performs a forward checking search to find a solution to the Constraint Satisfaction Problem (CSP).
+     *
+     * @param {object} assignment - The current assignment of variables and their values.
+     * @param {object} domains - The current domains of variables and their possible values.
+     * @returns {object|null} - The complete assignment if a solution is found, or null if no solution exists.
+     */
     forwardCheckingSearch(assignment = {}, domains = this.domains) {
         if(Object.keys(assignment).length === this.variables.length) {
             // assignment is complete
@@ -150,7 +192,13 @@ export class CSP {
         }
         return null;
     }
-
+    /**
+     * Performs a forward checking search to find a solution to the Constraint Satisfaction Problem (CSP) using the Minimum Remaining Values (MRV) heuristic.
+     *
+     * @param {object} assignment - The current assignment of variables and their values.
+     * @param {object} domains - The current domains of variables and their possible values.
+     * @returns {object|null} - The complete assignment if a solution is found, or null if no solution exists.
+     */
     forwardCheckingSearchWithMRV(assignment = {}, domains = this.domains) {
         if(Object.keys(assignment).length === this.variables.length) {
             // assignment is complete
@@ -176,8 +224,13 @@ export class CSP {
         return null;
     }
 
+    /**
+     * Returns the unassigned variable with the least remaining values.
+     *
+     * @param {array} unassigned - The list of unassigned variables.
+     * @returns {string} - The unassigned variable with the least remaining values.
+     */
     mrv(unassigned) {
-        // returns the unassigned variable with the least remaining values
         return unassigned.reduce((a, b) => {
             if(this.domains[a].length < this.domains[b].length) {
                 return a;
@@ -187,6 +240,15 @@ export class CSP {
         });
     }
 
+    /**
+     * Performs forward checking by looping over all neighbours(variables of the same constraint) of the given variable
+     * and removes inconsistent values from their domains.
+     * 
+     * @param {string} variable - The variable to perform forward checking on.
+     * @param {object} assignment - The current assignment of variables and their values.
+     * @param {object} domains - The current domains of variables and their possible values.
+     * @returns {boolean} - True if forward checking is successful, false otherwise.
+     */
     forwardChecking(variable, assignment, domains) {
         for(const constraint of this.constraints[variable]) {
             if((constraint instanceof AllDifferentConstraint && constraint.variables[0] === variable) || constraint instanceof ColumnSumConstraint) {
@@ -195,7 +257,9 @@ export class CSP {
                         for(const val of domains[neighbor]) {
                             assignment[neighbor] = val;
                             if(!this.consistent(neighbor, assignment)) {
+                                // if the value is inconsistent then remove it from the domain of the neighbor
                                 domains[neighbor] = domains[neighbor].filter(v => v !== val);
+                                // if the domain of any neighbor is empty then the assignment is not consistent
                                 if(domains[neighbor].length === 0) {
                                     delete assignment[neighbor];
                                     return false;
