@@ -25,7 +25,6 @@ function createCells(rows, columns) {
     const targetCell = document.createElement("div");
     targetCell.className = "target-cell";
     targetCell.setAttribute("data-col", `${i}`);
-    targetCell.contentEditable = true;
     const grid = document.querySelector(".grid");
     grid.appendChild(targetCell);
   }
@@ -242,6 +241,7 @@ function updateGridCell(variable, value) {
     `.cell[data-row="${row}"][data-col="${col}"]`
   );
   cell.innerText = value;
+  cell.contentEditable = false;
 }
 /**
  * Creates a CSP (Constraint Satisfaction Problem) instance.
