@@ -13,9 +13,9 @@ function createCells(rows, columns) {
     for (let j = 0; j < columns; j++) {
       const cell = document.createElement("div");
       cell.className = "cell";
-      cell.innerText = "\u2003";
       cell.setAttribute("data-row", `${i}`);
       cell.setAttribute("data-col", `${j}`);
+      cell.contentEditable = true;
       const grid = document.querySelector(".grid");
       grid.appendChild(cell);
     }
@@ -24,8 +24,8 @@ function createCells(rows, columns) {
   for (let i = 0; i < columns; i++) {
     const targetCell = document.createElement("div");
     targetCell.className = "target-cell";
-    targetCell.innerText = "\u2003";
     targetCell.setAttribute("data-col", `${i}`);
+    targetCell.contentEditable = true;
     const grid = document.querySelector(".grid");
     grid.appendChild(targetCell);
   }
@@ -93,7 +93,7 @@ function initializeVariablesAndDomains() {
         )}"], .target`
       );
     }
-    if (cell.innerText !== "\u2003") {
+    if (cell.innerText !== '') {
       // if the cell has a predefined value(by the randomInitialState function or set by the user) then we restrict the domain to that value
       domains[variable] = [parseInt(cell.innerText)];
     }
