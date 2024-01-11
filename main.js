@@ -1,10 +1,15 @@
 import * as CSPModule from "./CSP.js";
 const COLUMNS = 10;
 let rows = 3;
-// Create the grid cells
+
+/**
+ * Creates grid cells and target cells in the DOM.
+ * @param {number} rows - The number of rows in the grid.
+ * @param {number} columns - The number of columns in the grid.
+ */
 function createCells(rows, columns) {
   for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < COLUMNS; j++) {
+    for (let j = 0; j < columns; j++) {
       const cell = document.createElement("div");
       cell.className = "cell";
       cell.innerText = "\u2003";
@@ -15,7 +20,7 @@ function createCells(rows, columns) {
     }
   }
   // Create the target cells
-  for (let i = 0; i < COLUMNS; i++) {
+  for (let i = 0; i < columns; i++) {
     const targetCell = document.createElement("div");
     targetCell.className = "target-cell";
     targetCell.innerText = "\u2003";
@@ -31,8 +36,13 @@ function clearGrid() {
   }
 }
 createCells(rows, COLUMNS);
+/**
+ * Creates the variables for the Constraint Satisfaction Problem (CSP).
+ * The variables in our CSP will be the grid cells and the target cells.
+ * 
+ * @returns {string[]} An array of variables representing the grid cells and target cells.
+ */
 function createVariables() {
-  // The variables in our CSP will be the grid cells and the target cells which we can get using the following code
   const variables = Array.from(document.querySelectorAll(".cell")).map(
     (cell) => cell.dataset.row + "," + cell.dataset.col
   );
@@ -43,8 +53,12 @@ function createVariables() {
   );
   return variables;
 }
+/**
+ * Creates the domains for the CSP.
+ * The domains in our CSP will be the possible values for each grid cell and target cell.
+ * @returns {Array<Array<number>>} An array containing the grid cells domain and target cells domain.
+ */
 function createDomains() {
-  // The domains in our CSP will be the possible values for each grid cell and target cell
   const gridCellsDomain = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   // The target cells have a different domain
   const minValue = Math.floor(rows / 2) * 1; // The minimum value for a target cell e.g. 0, 1, 0, 1, 0 = 2
@@ -56,7 +70,11 @@ function createDomains() {
   );
   return [gridCellsDomain, targetCellsDomain];
 }
-function createCSPVariablesAndDomains() {
+/**
+ * Initializes variables and domains for the Tenner Grid CSP.
+ * @returns {Array} An array containing the variables and domains.
+ */
+function initializeVariablesAndDomains() {
   const variables = createVariables();
   // Adding the domains to the variables
   const [gridCellsDomain, targetCellsDomain] = createDomains();
@@ -75,7 +93,7 @@ function createCSPVariablesAndDomains() {
       );
     }
     if (cell.innerText !== "\u2003") {
-      // if the cell has a predefined value then we restrict the domain to that value
+      // if the cell has a predefined value(by the randomInitialState function or set by the user) then we restrict the domain to that value
       domains[variable] = [parseInt(cell.innerText)];
     }
     // otherwise we use default domains
@@ -88,6 +106,11 @@ function createCSPVariablesAndDomains() {
   return [variables, domains];
 }
 
+/**
+ * Generates column sum constraints for a given set of variables and CSP.
+ * @param {Array} variables - The array of variables.
+ * @param {CSP} csp - The CSP object.
+ */
 function genColSumConstraint(variables, csp) {
   for (let i = 0; i < COLUMNS; i++) {
     const colVariables = [];
@@ -98,6 +121,13 @@ function genColSumConstraint(variables, csp) {
   }
 }
 
+/**
+ * Generates an AllDifferent constraint for the given variables and adds it to the CSP.
+ * The AllDifferent constraint ensures that all variables in the constraint have distinct values.
+ *
+ * @param {Array} variables - The variables to include in the AllDifferent constraint.
+ * @param {CSP} csp - The CSP (Constraint Satisfaction Problem) to add the constraint to.
+ */
 function genAllDiffConstraint(variables, csp) {
   // for each cell in the grid we need to add all the cells that are adjacent to it and in the same row to the allDiff constraint
   for (let i = 0; i < rows; i++) {
@@ -141,35 +171,84 @@ function genAllDiffConstraint(variables, csp) {
     }
   }
 }
-function outputResult(result, consistencyChecks = undefined, time = undefined) {
+/**
+ * Updates the user interface with the CSP solution result.
+ *
+ * @param {object} result - The result of the CSP solution.
+ * @param {number} [consistencyChecks] - The number of consistency checks performed.
+ * @param {number} [time] - The time taken for the CSP solution in milliseconds.
+ */
+function updateUIWithCSPResult(result, consistencyChecks, time) {
   if (result === null) {
     console.log("No solution found!");
+    return;
   }
-  if ((consistencyChecks !== undefined) & (time !== undefined)) {
-    const consistencyChecksEl = document.getElementById("consistency-checks");
-    const timeEl = document.getElementById("time-taken");
-    consistencyChecksEl.innerText = "Consistency checks: " + consistencyChecks;
-    timeEl.innerText = "Time taken: " + time.toFixed(2) + "ms";
-  }
+
+  updateConsistencyAndTime(consistencyChecks, time);
+
   for (const variable in result) {
+    const value = result[variable];
+
     if (variable.startsWith("t")) {
-      const col = variable[1];
-      const targetCell = document.querySelector(
-        `.target-cell[data-col="${col}"]`
-      );
-      targetCell.innerText = result[variable];
+      updateTargetCell(variable, value);
     } else {
-      const [row, col] = variable.split(",");
-      const cell = document.querySelector(
-        `.cell[data-row="${row}"][data-col="${col}"]`
-      );
-      cell.innerText = result[variable];
+      updateGridCell(variable, value);
     }
   }
 }
 
+/**
+ * Updates the consistency checks and time elements in the UI.
+ *
+ * @param {number} [consistencyChecks] - The number of consistency checks performed.
+ * @param {number} [time] - The time taken for the CSP solution in milliseconds.
+ */
+function updateConsistencyAndTime(consistencyChecks, time) {
+  if (consistencyChecks !== undefined && time !== undefined) {
+    const consistencyChecksEl = document.getElementById("consistency-checks");
+    const timeEl = document.getElementById("time-taken");
+
+    consistencyChecksEl.innerText = "Consistency checks: " + consistencyChecks;
+    timeEl.innerText = "Time taken: " + time.toFixed(2) + "ms";
+  }
+}
+
+/**
+ * Updates the target cell in the UI.
+ *
+ * @param {string} variable - The variable representing the target cell.
+ * @param {number} value - The value to be displayed in the target cell.
+ */
+function updateTargetCell(variable, value) {
+  const col = variable[1];
+  const targetCell = document.querySelector(
+    `.target-cell[data-col="${col}"]`
+  );
+  targetCell.innerText = value;
+}
+
+/**
+ * Updates the grid cell in the UI.
+ *
+ * @param {string} variable - The variable representing the grid cell.
+ * @param {number} value - The value to be displayed in the grid cell.
+ */
+function updateGridCell(variable, value) {
+  const [row, col] = variable.split(",");
+  const cell = document.querySelector(
+    `.cell[data-row="${row}"][data-col="${col}"]`
+  );
+  cell.innerText = value;
+}
+/**
+ * Creates a CSP (Constraint Satisfaction Problem) instance.
+ * 
+ * This function initializes the variables and domains for the CSP, and adds the necessary constraints.
+ * 
+ * @returns {CSP} The created CSP instance.
+ */
 function createCSP() {
-  const [variables, domains] = createCSPVariablesAndDomains();
+  const [variables, domains] = initializeVariablesAndDomains();
   const csp = new CSPModule.CSP(variables, domains);
   genColSumConstraint(variables, csp);
   genAllDiffConstraint(variables, csp);
@@ -182,7 +261,7 @@ backtrackingBtn.addEventListener("click", (e) => {
   const startTime = performance.now();
   const result = csp.backtrackingSearch();
   const endTime = performance.now();
-  outputResult(result, csp.consistencyChecks, endTime - startTime);
+  updateUIWithCSPResult(result, csp.consistencyChecks, endTime - startTime);
 });
 
 const backtrackingMRVBtn = document.getElementById("backtracking-mrv");
@@ -191,7 +270,7 @@ backtrackingMRVBtn.addEventListener("click", (e) => {
   const startTime = performance.now();
   const result = csp.backtrackingSearchWithMRV();
   const endTime = performance.now();
-  outputResult(result, csp.consistencyChecks, endTime - startTime);
+  updateUIWithCSPResult(result, csp.consistencyChecks, endTime - startTime);
 });
 
 const forwardCheckingBtn = document.getElementById("forwardchecking");
@@ -200,7 +279,7 @@ forwardCheckingBtn.addEventListener("click", (e) => {
   const startTime = performance.now();
   const result = csp.forwardCheckingSearch();
   const endTime = performance.now();
-  outputResult(result, csp.consistencyChecks, endTime - startTime);
+  updateUIWithCSPResult(result, csp.consistencyChecks, endTime - startTime);
 });
 
 const forwardCheckingMRVBtn = document.getElementById("forwardchecking-mrv");
@@ -209,7 +288,7 @@ forwardCheckingMRVBtn.addEventListener("click", (e) => {
   const startTime = performance.now();
   const result = csp.forwardCheckingSearchWithMRV();
   const endTime = performance.now();
-  outputResult(result, csp.consistencyChecks, endTime - startTime);
+  updateUIWithCSPResult(result, csp.consistencyChecks, endTime - startTime);
 });
 
 const resetBtn = document.getElementById("reset");
@@ -229,6 +308,13 @@ document.addEventListener("DOMContentLoaded", function () {
 const randomize = document.getElementById("randomize");
 randomize.addEventListener("click", randomInitialState);
 
+/**
+ * Generates a random initial state for the Constraint Satisfaction Problem (CSP).
+ * Clears the grid, creates cells, and assigns random values to grid variables with a 50% chance of assignment.
+ * Uses the backtracking search algorithm to find a solution, restricting domains based on the assigned values.
+ * If no solution is found(rarely), retries the process.
+ * Updates the user interface with the CSP solution result.
+ */
 function randomInitialState() {
   clearGrid();
   createCells(rows, COLUMNS);
@@ -271,5 +357,5 @@ function randomInitialState() {
         assignment[variable] = result[variable];
       }
     }
-    outputResult(assignment);
+    updateUIWithCSPResult(assignment);
 }

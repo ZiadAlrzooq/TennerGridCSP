@@ -5,7 +5,9 @@ export class AllDifferentConstraint{
         this.variables = variables;
     }
     /**
-     * Check if the given assignment satisfies the all-different constraint.
+     * Checks if the given assignment satisfies the all-different constraint.
+     * The all-different constraint requires that all assigned values within the constraint
+     * are unique among each other.
      *
      * @param {object} assignment - The assignment of variables and their values.
      * @returns {boolean} - True if all values are unique within the constraint, false otherwise.
@@ -28,10 +30,12 @@ export class ColumnSumConstraint  {
     }
     
     /**
-     * Check if the given assignment satisfies the column sum constraint.
+     * Checks if the given assignment satisfies the column sum constraint.
+     * The column sum constraint requires that the sum of assigned values in the specified variables
+     * (excluding the target variable) matches the pre-defined target sum.
      *
      * @param {object} assignment - The assignment of variables and their values.
-     * @returns {boolean} - True if the assignment satisfies the constraint, false otherwise.
+     * @returns {boolean} - True if the assignment satisfies the column sum constraint, false otherwise.
      */
     satisfied(assignment) {
         const targetSum = assignment[this.targetVar];
