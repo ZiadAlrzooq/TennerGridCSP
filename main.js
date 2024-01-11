@@ -198,7 +198,7 @@ const forwardCheckingBtn = document.getElementById("forwardchecking");
 forwardCheckingBtn.addEventListener("click", (e) => {
   const csp = createCSP();
   const startTime = performance.now();
-  const result = csp.forwardChecking();
+  const result = csp.forwardCheckingSearch();
   const endTime = performance.now();
   outputResult(result, csp.consistencyChecks, endTime - startTime);
 });
@@ -207,7 +207,7 @@ const forwardCheckingMRVBtn = document.getElementById("forwardchecking-mrv");
 forwardCheckingMRVBtn.addEventListener("click", (e) => {
   const csp = createCSP();
   const startTime = performance.now();
-  const result = csp.forwardCheckingWithMRV();
+  const result = csp.forwardCheckingSearchWithMRV();
   const endTime = performance.now();
   outputResult(result, csp.consistencyChecks, endTime - startTime);
 });
