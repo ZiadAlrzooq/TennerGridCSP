@@ -110,12 +110,13 @@ export class CSP {
             return assignment;
         }
         // use mrv to get the unassigned variable with the least remaining values
-        const unassigned = this.mrv(assignment);
-        for(const value of this.domains[unassigned]) {
+        const unassigned = this.variables.filter(v => !(v in assignment));
+        const first = this.mrv(unassigned);
+        for(const value of this.domains[first]) {
             const localAssignment = {...assignment};
-            localAssignment[unassigned] = value;
+            localAssignment[first] = value;
             // if we're still consistent, we recurse (continue)
-            if(this.consistent(unassigned, localAssignment)) {
+            if(this.consistent(first, localAssignment)) {
                 const result = this.backtrackingSearchWithMRV(localAssignment);
                 if(result !== null) {
                     return result;
@@ -125,9 +126,58 @@ export class CSP {
         return null;
     }
 
-    mrv(assignment) {
-        // returns the unassigned variable with the least remaining values
+    forwardCheckingSearch(assignment = {}, domains = this.domains) {
+        if(Object.keys(assignment).length === this.variables.length) {
+            // assignment is complete
+            return assignment;
+        }
+        // get all variables in CSP but not in assignment
         const unassigned = this.variables.filter(v => !(v in assignment));
+        const first = unassigned[0];
+        for(const value of domains[first]) {
+            const localAssignment = {...assignment};
+            localAssignment[first] = value;
+            // if we're still consistent, we recurse (continue)
+            if(this.consistent(first, localAssignment)) {
+                const localDomain = {...domains};
+                if(this.forwardChecking(first, localAssignment, localDomain)) {
+                    const result = this.forwardCheckingSearch(localAssignment, localDomain);
+                    if(result !== null) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    forwardCheckingSearchWithMRV(assignment = {}, domains = this.domains) {
+        if(Object.keys(assignment).length === this.variables.length) {
+            // assignment is complete
+            return assignment;
+        }
+        // get all variables in CSP but not in assignment
+        const unassigned = this.variables.filter(v => !(v in assignment));
+        const first = this.mrv(unassigned);
+        for(const value of domains[first]) {
+            const localAssignment = {...assignment};
+            localAssignment[first] = value;
+            // if we're still consistent, we recurse (continue)
+            if(this.consistent(first, localAssignment)) {
+                const localDomain = {...domains};
+                if(this.forwardChecking(first, localAssignment, localDomain)) {
+                    const result = this.forwardCheckingSearchWithMRV(localAssignment, localDomain);
+                    if(result !== null) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    mrv(unassigned) {
+        // returns the unassigned variable with the least remaining values
         return unassigned.reduce((a, b) => {
             if(this.domains[a].length < this.domains[b].length) {
                 return a;
@@ -135,6 +185,29 @@ export class CSP {
                 return b;
             }
         });
+    }
+
+    forwardChecking(variable, assignment, domains) {
+        for(const constraint of this.constraints[variable]) {
+            if((constraint instanceof AllDifferentConstraint && constraint.variables[0] === variable) || constraint instanceof ColumnSumConstraint) {
+                for(const neighbor of constraint.variables) {
+                    if(!(neighbor in assignment)) {
+                        for(const val of domains[neighbor]) {
+                            assignment[neighbor] = val;
+                            if(!this.consistent(neighbor, assignment)) {
+                                domains[neighbor] = domains[neighbor].filter(v => v !== val);
+                                if(domains[neighbor].length === 0) {
+                                    delete assignment[neighbor];
+                                    return false;
+                                }
+                            }
+                            delete assignment[neighbor];
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
     
 }
