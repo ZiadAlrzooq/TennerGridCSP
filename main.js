@@ -337,6 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
     slider.nextElementSibling.innerText = "Row Size: " + rows;
     clearGrid();
     createCells(rows, COLUMNS);
+    randomInitialState();
   });
 });
 const randomize = document.getElementById("randomize");
@@ -380,7 +381,7 @@ function randomInitialState() {
         csp.domains[variable] = gridCellsDomain;
       }
     }
-    const result = csp.backtrackingSearch(assignment);
+    const result = csp.forwardCheckingSearchWithMRV(assignment);
     if (result === null) {
       console.log("No solution found! retrying...");
       randomInitialState();
@@ -395,3 +396,4 @@ function randomInitialState() {
     savedState = assignment;
     updateUIWithCSPResult(assignment);
 }
+randomInitialState();
