@@ -358,6 +358,7 @@ function randomInitialState() {
     if (result === null) {
       console.log("No solution found! retrying...");
       randomInitialState();
+      return;
     }
     // add the target cells from result to the assignment
     for (const variable in result) {
