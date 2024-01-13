@@ -293,8 +293,9 @@ resetBtn.addEventListener("click", (e) => {
 
 const randomizeBtn = document.getElementById("randomize");
 randomizeBtn.addEventListener("click", (e) => {
+  clearGrid();
+  createCells(rows, COLUMNS);
   const [variables, domains] = initializeVariablesAndDomains();
-  terminateWorkers();  // Terminate existing workers
   const [gridCellsDomain, targetCellsDomain] = createDomains();
   createWorker("randomize", variables, domains, gridCellsDomain, targetCellsDomain);
 });
