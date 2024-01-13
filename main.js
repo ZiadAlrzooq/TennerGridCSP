@@ -202,49 +202,83 @@ grid.addEventListener("input", (event) => {
   }
 });
 
-const worker = new Worker("worker.js", { type: "module" });
-const backtrackingBtn = document.getElementById("backtracking");
-worker.onmessage = (e) => {
-  const { result, consistencyChecks, time } = e.data;
-  updateUIWithCSPResult(result, consistencyChecks, time);
-};
-backtrackingBtn.addEventListener("click", (e) => {
-  const [variables, domains] = initializeVariablesAndDomains();
+let workers = [];  // Maintain an array to keep track of active workers
+
+/**
+ * Terminate all active workers.
+ * 
+ * This function terminates all active workers by calling the 'terminate' method on each worker object in the 'workers' array.
+ * After terminating the workers, the 'workers' array is cleared.
+ * 
+ * @returns {undefined}
+ */
+function terminateWorkers() {
+  // Terminate all active workers
+  for (const worker of workers) {
+    worker.terminate();
+  }
+  workers = [];  // Clear the array
+}
+/**
+ * Creates a new worker for a specific algorithm.
+ *
+ * @param {string} algorithmType - The type of algorithm to be used.
+ * @param {Array} variables - The variables for the CSP problem.
+ * @param {Object} domains - The domains for the variables.
+ * @param {Array} gridCellsDomain - The domain for grid cells.
+ * @param {Array} targetCellsDomain - The domain for target cells.
+ * @returns {undefined}
+ */
+function createWorker(algorithmType, variables, domains, gridCellsDomain, targetCellsDomain) {
+  const worker = new Worker("worker.js", { type: "module" });
+
+  worker.onmessage = (e) => {
+    const { result, consistencyChecks, time } = e.data;
+    if (consistencyChecks === undefined && time === undefined) {
+      // If the result is from the randomize algorithm then we save the result
+      savedState = result;
+    }
+    updateUIWithCSPResult(result, consistencyChecks, time);
+  };
+
+  workers.push(worker);
+
+  // Post message to the worker with algorithm details
   worker.postMessage({
-    type: "backtracking",
+    type: algorithmType,
     variables,
     domains,
+    gridCellsDomain,
+    targetCellsDomain,
   });
+}
+
+const backtrackingBtn = document.getElementById("backtracking");
+backtrackingBtn.addEventListener("click", (e) => {
+  const [variables, domains] = initializeVariablesAndDomains();
+  terminateWorkers();  // Terminate existing workers
+  createWorker("backtracking", variables, domains);
 });
 
 const backtrackingMRVBtn = document.getElementById("backtracking-mrv");
 backtrackingMRVBtn.addEventListener("click", (e) => {
   const [variables, domains] = initializeVariablesAndDomains();
-  worker.postMessage({
-    type: "backtracking-mrv",
-    variables,
-    domains,
-  });
+  terminateWorkers();  // Terminate existing workers
+  createWorker("backtracking-mrv", variables, domains);
 });
 
 const forwardCheckingBtn = document.getElementById("forwardchecking");
 forwardCheckingBtn.addEventListener("click", (e) => {
   const [variables, domains] = initializeVariablesAndDomains();
-  worker.postMessage({
-    type: "forwardchecking",
-    variables,
-    domains,
-  });
+  terminateWorkers();  // Terminate existing workers
+  createWorker("forwardchecking", variables, domains);
 });
 
 const forwardCheckingMRVBtn = document.getElementById("forwardchecking-mrv");
 forwardCheckingMRVBtn.addEventListener("click", (e) => {
   const [variables, domains] = initializeVariablesAndDomains();
-  worker.postMessage({
-    type: "forwardchecking-mrv",
-    variables,
-    domains,
-  });
+  terminateWorkers();  // Terminate existing workers
+  createWorker("forwardchecking-mrv", variables, domains);
 });
 
 const resetBtn = document.getElementById("reset");
@@ -257,23 +291,17 @@ resetBtn.addEventListener("click", (e) => {
   updateUIWithCSPResult(savedState);
 });
 
-const randomize = document.getElementById("randomize");
-randomize.addEventListener("click", (e) => {
-  clearGrid();
-  createCells(rows, COLUMNS);
+const randomizeBtn = document.getElementById("randomize");
+randomizeBtn.addEventListener("click", (e) => {
   const [variables, domains] = initializeVariablesAndDomains();
+  terminateWorkers();  // Terminate existing workers
   const [gridCellsDomain, targetCellsDomain] = createDomains();
-  worker.postMessage({
-    type: "randomize",
-    variables,
-    domains,
-    gridCellsDomain,
-    targetCellsDomain,
-  });
+  createWorker("randomize", variables, domains, gridCellsDomain, targetCellsDomain);
 });
 document.addEventListener("DOMContentLoaded", function () {
   const slider = document.getElementById("row-size-slider");
   slider.addEventListener("input", function () {
+    terminateWorkers();  // Terminate existing workers
     rows = parseInt(this.value);
     slider.nextElementSibling.innerText = "Row Size: " + rows;
     clearGrid();

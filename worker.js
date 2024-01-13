@@ -111,6 +111,7 @@ function randomInitialState(csp, gridCellsDomain, targetCellsDomain) {
 self.addEventListener("message", (e) => {
   const { type, variables, domains, gridCellsDomain, targetCellsDomain} = e.data;
   const csp = new CSPModule.CSP(variables, domains);
+  rows = Math.floor(variables.length / COLUMNS) - 1; // -1 because we don't want to count the target cells row
   genColSumConstraint(variables, csp);
   genAllDiffConstraint(variables, csp);
   const startTime = performance.now();
